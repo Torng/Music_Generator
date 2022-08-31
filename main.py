@@ -10,7 +10,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
 preprocess = Preprocess('data')
 preprocess.set_batch_size(4)
-num_epochs = 100
+num_epochs = 1000000
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # g_net.forward(torch.randn(1, 1, 128))
@@ -39,6 +39,7 @@ iters = 0
 
 print("Starting Training Loop...")
 # For each epoch
+save_name = 1
 for epoch in range(num_epochs):
     # For each batch in the dataloader
     for i, data in enumerate(preprocess.training_data, 0):
@@ -110,6 +111,10 @@ for epoch in range(num_epochs):
             img_list.append(vutils.make_grid(fake, padding=2, normalize=True))
 
         iters += 1
+
+    if epoch % 100000 == 0:
+        torch.save(g_net, "model_" + str(save_name))
+        save_name += 1
 
 plt.figure(figsize=(10, 5))
 plt.title("Generator and Discriminator Loss During Training")
