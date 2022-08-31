@@ -11,8 +11,8 @@ print("using {}".format(device))
 preprocess = Preprocess('data')
 preprocess.set_batch_size(4)
 num_epochs = 100
-g_net = Generator()
-d_net = Discriminator()
+g_net = Generator().to(device)
+d_net = Discriminator().to(device)
 # g_net.forward(torch.randn(1, 1, 128))
 
 # Initialize BCELoss function
