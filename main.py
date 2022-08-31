@@ -7,6 +7,7 @@ import torch.optim as optim
 import torchvision.utils as vutils
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("using {}".format(device))
 preprocess = Preprocess('data')
 preprocess.set_batch_size(4)
 num_epochs = 100
