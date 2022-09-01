@@ -8,7 +8,8 @@ class Discriminator(nn.Module):
         self.conv_t_1 = nn.Conv1d(1, 1, kernel_size=4, stride=2)
         self.conv_t_2 = nn.Conv1d(1, 1, kernel_size=4, stride=4)
         self.b_n_1 = nn.BatchNorm1d(1)
-        self.fc = nn.Linear(124, 4)
+        self.fc = nn.Linear(496, 128)
+        self.fc_2 = nn.Linear(128, 4)
         # self.conv_t_2 = nn.Conv1d(1, 1, kernel_size=4)
         # self.main = nn.Sequential(
         #     # input is (nc) x 64 x 64
@@ -43,5 +44,6 @@ class Discriminator(nn.Module):
         x = self.b_n_1(x)
         x = x.view(-1)
         x = self.fc(x)
+        x = self.fc_2(x)
         x = F.sigmoid(x)
         return x
