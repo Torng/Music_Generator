@@ -8,7 +8,7 @@ class Discriminator(nn.Module):
         self.conv_t_1 = nn.Conv1d(1, 1, kernel_size=4, stride=2)
         self.conv_t_2 = nn.Conv1d(1, 1, kernel_size=4, stride=4)
         self.b_n_1 = nn.BatchNorm1d(1)
-        self.fc = nn.Linear(240, 128)
+        self.fc = nn.Linear(480, 128)
         self.fc_2 = nn.Linear(128, 16)
         # self.conv_t_2 = nn.Conv1d(1, 1, kernel_size=4)
         # self.main = nn.Sequential(
