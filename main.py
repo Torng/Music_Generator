@@ -37,7 +37,7 @@ img_list = []
 G_losses = []
 D_losses = []
 iters = 0
-dl = DataLoader(preprocess.whole_training_data, batch_size=16, shuffle=True)
+dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True,drop_last=True)
 print("Starting Training Loop...")
 # For each epoch
 save_name = 1
@@ -96,7 +96,7 @@ for epoch in range(num_epochs):
         optimizerG.step()
 
         # Output training stats
-        if i % 50 == 0:
+        if i % 16 == 0:
             print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
                   % (epoch, num_epochs, i, len(preprocess.training_data),
                      errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
