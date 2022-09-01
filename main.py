@@ -9,8 +9,8 @@ import torchvision.utils as vutils
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
 preprocess = Preprocess('data')
-preprocess.set_batch_size(4)
-num_epochs = 1000000
+preprocess.set_batch_size(16)
+num_epochs = 500
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # g_net.forward(torch.randn(1, 1, 128))
@@ -112,7 +112,7 @@ for epoch in range(num_epochs):
 
         iters += 1
 
-    if epoch % 100000 == 0:
+    if epoch % 100 == 0:
         torch.save(g_net, "model_" + str(save_name))
         save_name += 1
 
