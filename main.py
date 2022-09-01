@@ -5,11 +5,12 @@ import torch
 from torch import nn
 import torch.optim as optim
 import torchvision.utils as vutils
+from torch.utils.data import DataLoader
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
-preprocess = Preprocess('data')
-preprocess.set_batch_size(16)
+preprocess = Preprocess('keyboard')
+# preprocess.set_batch_size(32)
 num_epochs = 500
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
@@ -36,13 +37,13 @@ img_list = []
 G_losses = []
 D_losses = []
 iters = 0
-
+dl = DataLoader(preprocess.whole_training_data, batch_size=16, shuffle=True)
 print("Starting Training Loop...")
 # For each epoch
 save_name = 1
 for epoch in range(num_epochs):
     # For each batch in the dataloader
-    for i, data in enumerate(preprocess.training_data, 0):
+    for i, data in enumerate(dl, 0):
 
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))

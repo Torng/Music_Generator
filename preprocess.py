@@ -15,13 +15,13 @@ class Preprocess:
         max_size = float('-inf')
         for file_path in self.folder_path.glob("*.wav"):
             data, sample_rate = torchaudio.load(file_path)
-            new_data = (data[0] + data[1]) / 2
-            new_data = new_data.view(1, -1)
-            if new_data.shape[1] > 131840:  # 132300 = 44100*3 3seconds music
-                new_data = new_data[:, :131840]
-            elif new_data.shape[1] < 131840:
-                new_data = torch.cat((new_data, torch.zeros(1, 131840 - new_data.shape[1])), 1)
-            new_data = new_data.reshape(1, 1, new_data.shape[1])
+            new_data = data
+            # new_data = (data[0] + data[1]) / 2
+            # new_data = new_data.view(1, -1)
+            if new_data.shape[1] > 65924:  # 132300 = 44100*3 3seconds music
+                new_data = new_data[:, :65924]
+            elif new_data.shape[1] < 65924:
+                new_data = torch.cat((new_data, torch.zeros(1, 65924 - new_data.shape[1])), 1)
             training_data.append(new_data)
         return training_data
 
