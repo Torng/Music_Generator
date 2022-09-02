@@ -15,20 +15,21 @@ class Preprocess:
         max_size = float('-inf')
         for file_path in self.folder_path.glob("*.wav"):
             data, sample_rate = torchaudio.load(file_path)
-            new_data = data
+            # new_data = data
             # new_data = (data[0] + data[1]) / 2
             # new_data = new_data.view(1, -1)
-            if new_data.shape[1] > 65924:  # 132300 = 44100*3 3seconds music
-                new_data = new_data[:, :65924]
-            elif new_data.shape[1] < 65924:
-                new_data = torch.cat((new_data, torch.zeros(1, 65924 - new_data.shape[1])), 1)
+            if data.shape[1] > 65924:  # 132300 = 44100*3 3seconds music
+                data = data[:, :65924]
+            elif data.shape[1] < 65924:
+                data = torch.cat((data, torch.zeros(1, 65924 - data.shape[1])), 1)
+            new_data = self.data_process(data)
             training_data.append(new_data)
         return training_data
 
     def data_process(self, data):
-        mfcc = torchaudio.transforms.MFCC()
-        mfcc_data = mfcc(data[0])
-        return mfcc_data, data[1]
+        transform = torchaudio.transforms.Spectrogram(n_fft=1022, normalized=True,win_length=700)
+        spectrogram_data = transform(data)
+        return spectrogram_data
 
     def plot_specgram(self, waveform, sample_rate, title="Spectrogram", xlim=None):
         waveform = waveform.numpy()

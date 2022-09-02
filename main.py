@@ -14,14 +14,14 @@ preprocess = Preprocess('keyboard')
 num_epochs = 500
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
-# g_net.forward(torch.randn(1, 1, 128))
+# g_net.forward(torch.randn(1, 1, 1, 63))
 
 # Initialize BCELoss function
 criterion = nn.BCELoss()
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator
-fixed_noise = torch.randn(64, 1, 128, device=device)
+fixed_noise = torch.randn(64, 1, 1, 128, device=device)
 
 # Establish convention for real and fake labels during training
 real_label = 1.
@@ -37,7 +37,7 @@ img_list = []
 G_losses = []
 D_losses = []
 iters = 0
-dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True,drop_last=True)
+dl = DataLoader(preprocess.whole_training_data, batch_size=16, shuffle=True, drop_last=True)
 print("Starting Training Loop...")
 # For each epoch
 save_name = 1
@@ -52,6 +52,7 @@ for epoch in range(num_epochs):
         d_net.zero_grad()
         # Format batch
         real_cpu = data.to(device)
+        d_net.forward(data)
         b_size = real_cpu.size(0)
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
         # Forward pass real batch through D
@@ -64,7 +65,7 @@ for epoch in range(num_epochs):
 
         ## Train with all-fake batch
         # Generate batch of latent vectors
-        noise = torch.randn(b_size, 1, 128, device=device)
+        noise = torch.randn(b_size, 1, 1, 128, device=device)
         # Generate fake image batch with G
         fake = g_net(noise)
         label.fill_(fake_label)
