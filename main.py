@@ -56,10 +56,9 @@ for epoch in range(num_epochs):
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
         # Forward pass real batch through D
         output = d_net(real_cpu).view(-1)
-        # Calculate loss on all-real batch
-        errD_real = criterion(output, label)
-        # Calculate gradients for D in backward pass
-        errD_real.backward()
+        if i % 5 == 0:
+            errD_real = criterion(output, label)
+            errD_real.backward()
         D_x = output.mean().item()
 
         ## Train with all-fake batch
@@ -78,7 +77,8 @@ for epoch in range(num_epochs):
         # Compute error of D as sum over the fake and the real batches
         errD = errD_real + errD_fake
         # Update D
-        optimizerD.step()
+        if i % 5 == 0:
+            optimizerD.step()
 
         ############################
         # (2) Update G network: maximize log(D(G(z)))
@@ -98,7 +98,7 @@ for epoch in range(num_epochs):
         # Output training stats
         if i % 16 == 0:
             print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-                  % (epoch, num_epochs, i, len(preprocess.training_data),
+                  % (epoch, num_epochs, i, 16,
                      errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
 
         # Save Losses for plotting later
