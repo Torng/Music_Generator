@@ -52,7 +52,6 @@ for epoch in range(num_epochs):
         d_net.zero_grad()
         # Format batch
         real_cpu = data.to(device)
-        d_net.forward(data)
         b_size = real_cpu.size(0)
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
         # Forward pass real batch through D
