@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from preprocess import Preprocess
 from Module.discriminator import Discriminator
 from Module.generator import Generator
