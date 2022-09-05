@@ -27,7 +27,7 @@ class Preprocess:
         return training_data
 
     def data_process(self, data):
-        transform = torchaudio.transforms.Spectrogram(n_fft=1022, normalized=True,win_length=700)
+        transform = torchaudio.transforms.Spectrogram(n_fft=1022, normalized=True)
         spectrogram_data = transform(data)
         return spectrogram_data
 

@@ -6,6 +6,7 @@ from torch import nn
 import torch.optim as optim
 import torchvision.utils as vutils
 from torch.utils.data import DataLoader
+from pathlib import Path
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
@@ -14,14 +15,12 @@ preprocess = Preprocess('keyboard')
 num_epochs = 500
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
-# g_net.forward(torch.randn(1, 1, 1, 63))
-
 # Initialize BCELoss function
 criterion = nn.BCELoss()
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator
-fixed_noise = torch.randn(64, 1, 1, 128, device=device)
+fixed_noise = torch.randn(64, 128, 1, 1, device=device)
 
 # Establish convention for real and fake labels during training
 real_label = 1.
@@ -63,7 +62,7 @@ for epoch in range(num_epochs):
 
         ## Train with all-fake batch
         # Generate batch of latent vectors
-        noise = torch.randn(b_size, 1, 1, 128, device=device)
+        noise = torch.randn(b_size, 128, 1, 1, device=device)
         # Generate fake image batch with G
         fake = g_net(noise)
         label.fill_(fake_label)
@@ -114,8 +113,10 @@ for epoch in range(num_epochs):
         iters += 1
 
     if epoch % 100 == 0:
-        torch.save(g_net, "model_" + str(save_name))
-        save_name += 1
+        path = Path("model_set/")
+        path.mkdir(exist_ok=True)
+        output_path = path / ("model_" + str(epoch))
+        torch.save(g_net, output_path)
 
 plt.figure(figsize=(10, 5))
 plt.title("Generator and Discriminator Loss During Training")
