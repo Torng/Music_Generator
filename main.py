@@ -18,7 +18,8 @@ g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # Initialize BCELoss function
 criterion = nn.BCELoss()
-# d_net(torch.randn(1, 1, 4096, 10))
+# g_net(torch.randn(1,128,1,1))
+# d_net(torch.randn(1, 1, 4096, 9))
 preprocess = Preprocess('maestro-v3.0.0')
 
 # Create batch of latent vectors that we will use to visualize

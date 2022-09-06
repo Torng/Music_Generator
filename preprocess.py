@@ -59,7 +59,6 @@ class Preprocess:
                 result_dic['program_change'].append(0)
                 result_dic['control_change'].append(0)
                 result_dic['note_on'].append(0)
-                result_dic['end_of_track'].append(1)
                 result_dic['current_time'].append(current_count)
                 break
             if midi_track.type == 'program_change':
@@ -79,9 +78,6 @@ class Preprocess:
                 velocity = midi_track.velocity
                 time = midi_track.time
                 note_on = 1
-            elif midi_track.type == 'end_of_track':
-                time = midi_track.time
-                end_of_track = 1
             # result_dic['channel'].append(channel)
             # result_dic['program'].append(program)
             result_dic['control'].append(control)
@@ -93,7 +89,6 @@ class Preprocess:
             result_dic['program_change'].append(program_change)
             result_dic['control_change'].append(control_change)
             result_dic['note_on'].append(note_on)
-            result_dic['end_of_track'].append(end_of_track)
             current_count += 1
         return mete_data, pd.DataFrame.from_dict(result_dic)
 
@@ -107,6 +102,6 @@ class Preprocess:
             data['note'] /= 127
             data['time'] /= max_time
             data['velocity'] /= 127
-            data['current_time'] /= 3837
+            data['current_time'] /= 4096
             result_data.append(data.to_numpy().astype(np.float32))
         return result_data
