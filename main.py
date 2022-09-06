@@ -11,13 +11,15 @@ from pathlib import Path
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
-preprocess = Preprocess('keyboard')
+
 # preprocess.set_batch_size(32)
 num_epochs = 500
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # Initialize BCELoss function
 criterion = nn.BCELoss()
+# d_net(torch.randn(1, 1, 4096, 10))
+preprocess = Preprocess('maestro-v3.0.0')
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator

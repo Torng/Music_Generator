@@ -1,7 +1,9 @@
+import pandas as pd
 import torchaudio
 from pathlib import Path
-import torch
-import matplotlib.pyplot as plt
+import numpy as np
+from mido import MidiFile, MidiTrack, Message
+from collections import defaultdict
 
 
 class Preprocess:
@@ -12,49 +14,99 @@ class Preprocess:
 
     def load_data(self):
         training_data = []
-        max_size = float('-inf')
-        for file_path in self.folder_path.glob("*.wav"):
-            data, sample_rate = torchaudio.load(file_path)
-            # new_data = data
-            # new_data = (data[0] + data[1]) / 2
-            # new_data = new_data.view(1, -1)
-            if data.shape[1] > 65924:  # 132300 = 44100*3 3seconds music
-                data = data[:, :65924]
-            elif data.shape[1] < 65924:
-                data = torch.cat((data, torch.zeros(1, 65924 - data.shape[1])), 1)
-            new_data = self.data_process(data)
-            training_data.append(new_data)
+        for file_path in self.folder_path.glob("2004/*.midi"):
+            midi = MidiFile(file_path)
+            mete_data, midi_df = self.data_process(midi)
+            if mete_data:
+                training_data.append((mete_data, midi_df))
+        max_time = max([data['time'].max() for meta_data, data in training_data])
+        training_data = self.normalize(training_data, max_time)
         return training_data
 
     def data_process(self, data):
-        transform = torchaudio.transforms.Spectrogram(n_fft=1022, normalized=True)
-        spectrogram_data = transform(data)
-        return spectrogram_data
+        types = ['program_change', 'control_change', 'note_on', 'end_of_track']
+        columns = ['channel', 'program', 'control', 'value', 'note', 'velocity', 'time']
+        result_df = pd.DataFrame(columns=columns)
+        midi_tracks = data.tracks
+        mete_data = midi_tracks[0]
+        result_dic = defaultdict(list)
+        current_count = 0
+        if len(midi_tracks[1]) < 4096:
+            return None, None
+        for midi_track in midi_tracks[1]:
+            channel = 0
+            program = 0
+            control = 0
+            value = 0
+            note = 0
+            velocity = 0
+            time = 0
+            program_change = 0
+            control_change = 0
+            note_on = 0
+            end_of_track = 0
+            midi_type = midi_track.type
+            if midi_track.is_meta:
+                continue
+            if current_count == 4095:
+                # result_dic['channel'].append(channel)
+                # result_dic['program'].append(program)
+                result_dic['control'].append(control)
+                result_dic['value'].append(value)
+                result_dic['note'].append(note)
+                result_dic['velocity'].append(velocity)
+                result_dic['time'].append(1)
+                result_dic['program_change'].append(0)
+                result_dic['control_change'].append(0)
+                result_dic['note_on'].append(0)
+                result_dic['end_of_track'].append(1)
+                result_dic['current_time'].append(current_count)
+                break
+            if midi_track.type == 'program_change':
+                channel = midi_track.channel
+                program = midi_track.program
+                time = midi_track.time
+                program_change = 1
+            elif midi_track.type == 'control_change':
+                channel = midi_track.channel
+                control = midi_track.control
+                value = midi_track.value
+                time = midi_track.time
+                control_change = 1
+            elif midi_track.type == 'note_on':
+                channel = midi_track.channel
+                note = midi_track.note
+                velocity = midi_track.velocity
+                time = midi_track.time
+                note_on = 1
+            elif midi_track.type == 'end_of_track':
+                time = midi_track.time
+                end_of_track = 1
+            # result_dic['channel'].append(channel)
+            # result_dic['program'].append(program)
+            result_dic['control'].append(control)
+            result_dic['value'].append(value)
+            result_dic['note'].append(note)
+            result_dic['velocity'].append(velocity)
+            result_dic['time'].append(time)
+            result_dic['current_time'].append(current_count)
+            result_dic['program_change'].append(program_change)
+            result_dic['control_change'].append(control_change)
+            result_dic['note_on'].append(note_on)
+            result_dic['end_of_track'].append(end_of_track)
+            current_count += 1
+        return mete_data, pd.DataFrame.from_dict(result_dic)
 
-    def plot_specgram(self, waveform, sample_rate, title="Spectrogram", xlim=None):
-        waveform = waveform.numpy()
-
-        num_channels, num_frames = waveform.shape
-        time_axis = torch.arange(0, num_frames) / sample_rate
-
-        figure, axes = plt.subplots(num_channels, 1)
-        if num_channels == 1:
-            axes = [axes]
-        for c in range(num_channels):
-            axes[c].specgram(waveform[c], Fs=sample_rate)
-            if num_channels > 1:
-                axes[c].set_ylabel(f'Channel {c + 1}')
-            if xlim:
-                axes[c].set_xlim(xlim)
-        figure.suptitle(title)
-        plt.show(block=False)
-
-    def set_batch_size(self, batch_size=4):
-        for batch in range(0, len(self.whole_training_data), batch_size):
-            batch_data = self.whole_training_data[batch]
-            for i in range(batch, batch + batch_size - 1):
-                i = i % len(self.whole_training_data)
-                # if i >= len(self.whole_training_data):
-                #     break
-                batch_data = torch.cat((batch_data, self.whole_training_data[i]), 0)
-            self.training_data.append(batch_data)
+    def normalize(self, training_data, max_time):
+        result_data = []
+        for meta_data, data in training_data:
+            # data['channel'] /= 15
+            # data['program'] /= 127
+            data['control'] /= 127
+            data['value'] /= 127
+            data['note'] /= 127
+            data['time'] /= max_time
+            data['velocity'] /= 127
+            data['current_time'] /= 3837
+            result_data.append(data.to_numpy().astype(np.float32))
+        return result_data
