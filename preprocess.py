@@ -100,7 +100,7 @@ class Preprocess:
             data['control'] /= 127
             data['value'] /= 127
             data['note'] /= 127
-            data['time'] /= max_time
+            data['time'] /= 4096
             data['velocity'] /= 127
             data['current_time'] /= 4096
             result_data.append(data.to_numpy().astype(np.float32))
