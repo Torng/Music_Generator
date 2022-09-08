@@ -5,38 +5,40 @@ from mido import MidiFile, MidiTrack, Message
 
 def denormalize(new_music):
     # control ,value,note,velocity,time,program_change,control_change,note_on,current_time
-    new_music[0, :, 0:4] *= 127  # control
-    new_music[0, :, 4] *= 5415  # control
-    new_music[0, :, -1] *= 4095
-    new_music[0, :, 0:4] = torch.where(new_music[0, :, 0:4] <= 0, 0, torch.floor(new_music[0, :, 0:4]))
-    new_music[0, :, 0:4] = torch.where(new_music[0, :, 0:4] > 127, 127, torch.floor(new_music[0, :, 0:4]))
-    new_music[0, :, 4] = torch.where(new_music[0, :, 4] <= 0, 0, torch.floor(new_music[0, :, 4]))
-    new_music[0, :, 4] = torch.where(new_music[0, :, 4] > 5415, 5415, torch.floor(new_music[0, :, 4]))
-    # new_music[0, :, -1] = torch.where(new_music[0, :, -1] <= 0, 0, torch.floor(new_music[0, :, -1]))
-    # new_music[0, :, -1] = torch.where(new_music[0, :, -1] > 4095, 4095, torch.floor(new_music[0, :, -1]))
+    new_music[1] *= 127
+    new_music[1] = torch.where(new_music[1] <= 0, 0, torch.floor(new_music[1]))
+    new_music[1] = torch.where(new_music[1] > 127, 127, torch.floor(new_music[1]))
+    new_music[0] = torch.where(new_music[1] <= 0, 0, torch.round(new_music[0]))
+    new_music[0] = torch.where(new_music[1] > 1, 1, torch.round(new_music[0]))
 
 
 def to_midi(new_music):
     new_mid = MidiFile()
     track = MidiTrack()
-    for i in range(new_music.shape[1]):
-        channel = 0
-        program = 0
-        index = new_music[0, i, 5:8].max(-1)[1].view(1).item()
-        if index == 0:
-            time = int(new_music[0, i, 4].item())
-            ms = Message(type='program_change', channel=channel, program=program, time=time)
-        elif index == 1:
-            control = int(new_music[0, i, 0].item())
-            value = int(new_music[0, i, 1].item())
-            time = int(new_music[0, i, 4].item())
-            ms = Message(type='control_change', channel=channel, control=control, value=value, time=time)
-        elif index == 2:
-            note = int(new_music[0, i, 2].item())
-            velocity = int(new_music[0, i, 3].item())
-            time = int(new_music[0, i, 4].item())
-            ms = Message(type='note_on', channel=channel, note=note, velocity=velocity, time=time)
-        track.append(ms)
+    pre_time = 0
+    playing_notes = []
+    for current_beat in range(new_music.shape[1]):
+        is_note = (new_music[0, current_beat] == 1).nonzero(as_tuple=True)[0]
+        not_note = (new_music[0, current_beat] == 0).nonzero(as_tuple=True)[0]
+        # pre_time =current_beat
+        for not_note_idx in not_note:
+            not_note_num = not_note_idx.item()
+            if not_note_num in playing_notes:
+                current_time = current_beat * 60
+                ms = Message(type='note_on', channel=9, note=not_note_num + 31, velocity=0,
+                             time=current_time - pre_time)
+                track.append(ms)
+                playing_notes.remove(not_note_num)
+                pre_time = current_time
+        for note_idx in is_note:
+            if new_music[0, current_beat, note_idx] == 1:
+                note_idx_num = note_idx.item()
+                velocity = int(new_music[1, current_beat, note_idx].item())
+                ms = Message(type='note_on', channel=9, note=note_idx_num + 31, velocity=velocity,
+                             time=current_beat * 60 - pre_time)
+                track.append(ms)
+                playing_notes.append(note_idx_num)
+                pre_time = current_beat * 60
     new_mid.tracks.append(track)
     new_mid.save("new_midi.mid")
 
@@ -48,7 +50,7 @@ model.eval()
 
 z = torch.randn(1, 128, 1, 1, device=device)
 new_music = model.forward(z)
-
+new_music = new_music[0]
 # new_music = new_music[0]
 denormalize(new_music)
 to_midi(new_music)

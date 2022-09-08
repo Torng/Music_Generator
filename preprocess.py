@@ -111,7 +111,7 @@ class Preprocess:
     def preprocess_midi(self, mid):
         current_time = 0
         note_dic = {}
-        current_midi = np.zeros((2, 256, 24))
+        current_midi = np.zeros((1, 256, 24))
         for track in mid.tracks[1]:
             if type(track) == Message:
                 if track.time + current_time > 15360:
@@ -121,12 +121,12 @@ class Preprocess:
                         note_dic[track.note] = (current_time + track.time, track.velocity)
                     else:
                         start_index = int(note_dic[track.note][0] / 60)
-                        velocity = note_dic[track.note][1]
+                        # velocity = note_dic[track.note][1]
                         end_index = int((current_time + track.time) / 60)
                         current_midi[0, start_index:end_index + 1, track.note - 31] = 1
-                        current_midi[1, start_index:end_index + 1, track.note - 31] = velocity
+                        # current_midi[1, start_index:end_index + 1, track.note - 31] = velocity
                         del note_dic[track.note]
                 current_time += track.time
-        current_midi[1] = current_midi[1] / 127
+        # current_midi[1] = current_midi[1] / 127
         current_midi = current_midi.astype(np.float32)
         return current_midi
