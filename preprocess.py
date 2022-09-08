@@ -127,6 +127,6 @@ class Preprocess:
                         current_midi[1, start_index:end_index + 1, track.note - 31] = velocity
                         del note_dic[track.note]
                 current_time += track.time
-        current_midi[1] = (current_midi[1] - np.average(current_midi[1]))/np.std(current_midi[1])
+        current_midi[1] = current_midi[1] / 127
         current_midi = current_midi.astype(np.float32)
         return current_midi
