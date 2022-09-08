@@ -59,7 +59,7 @@ for epoch in range(num_epochs):
         label = torch.full((b_size,), real_label, dtype=torch.float, device=device)
         # Forward pass real batch through D
         output = d_net(real_cpu).view(-1)
-        if i % 10 == 0:
+        if i % 32 == 0:
             errD_real = criterion(output, label)
             errD_real.backward()
         else:
@@ -82,7 +82,7 @@ for epoch in range(num_epochs):
         # Compute error of D as sum over the fake and the real batches
         errD = errD_real + errD_fake
         # Update D
-        if i % 10 == 0:
+        if i % 32 == 0:
             optimizerD.step()
 
         ############################
