@@ -40,7 +40,7 @@ img_list = []
 G_losses = []
 D_losses = []
 iters = 0
-dl = DataLoader(preprocess.whole_training_data, batch_size=16, shuffle=True, drop_last=True)
+dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True, drop_last=True)
 print("Starting Training Loop...")
 # For each epoch
 save_name = 1
@@ -62,6 +62,8 @@ for epoch in range(num_epochs):
         if i % 10 == 0:
             errD_real = criterion(output, label)
             errD_real.backward()
+        else:
+            errD_real = torch.tensor(0)
         D_x = output.mean().item()
 
         ## Train with all-fake batch
@@ -116,7 +118,7 @@ for epoch in range(num_epochs):
 
         iters += 1
 
-    if epoch % 100 == 0:
+    if epoch % 10 == 0:
         path = Path("model_set/")
         path.mkdir(exist_ok=True)
         output_path = path / ("model_" + str(epoch))
