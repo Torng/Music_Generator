@@ -27,6 +27,6 @@ class Generator(nn.Module):
         x = F.relu(x)
         x = self.conv_t_4(x)
         x = self.b_n_4(x)
-        x = F.tanh(x)
+        x = F.sigmoid(x)
         # x = x.view(-1, 4096, 9)
         return x
