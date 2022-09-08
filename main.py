@@ -18,8 +18,8 @@ g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # Initialize BCELoss function
 criterion = nn.BCELoss()
-g_net(torch.randn(1, 128, 1, 1))
-d_net(torch.randn(1, 1, 256, 24))
+# g_net(torch.randn(1, 128, 1, 1))
+# d_net(torch.randn(1, 1, 256, 24))
 preprocess = Preprocess('funk_music')
 
 # Create batch of latent vectors that we will use to visualize
