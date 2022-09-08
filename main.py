@@ -18,9 +18,9 @@ g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # Initialize BCELoss function
 criterion = nn.BCELoss()
-# g_net(torch.randn(1,128,1,1))
-# d_net(torch.randn(1, 1, 4096, 9))
-preprocess = Preprocess('maestro-v3.0.0')
+# g_net(torch.randn(1, 128, 1, 1))
+# d_net(torch.randn(1, 2, 256, 24))
+preprocess = Preprocess('funk_music')
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator

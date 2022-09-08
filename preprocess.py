@@ -14,13 +14,15 @@ class Preprocess:
 
     def load_data(self):
         training_data = []
-        for file_path in self.folder_path.glob("2004/*.midi"):
+        for file_path in self.folder_path.glob("*.midi"):
             midi = MidiFile(file_path)
-            mete_data, midi_df = self.data_process(midi)
-            if mete_data:
-                training_data.append((mete_data, midi_df))
-        max_time = max([data['time'].max() for meta_data, data in training_data])
-        training_data = self.normalize(training_data, max_time)
+            midi_array = self.preprocess_midi(midi)
+            training_data.append(midi_array)
+            # mete_data, midi_df = self.data_process(midi)
+            # if mete_data:
+            #     training_data.append((mete_data, midi_df))
+        # max_time = max([data['time'].max() for meta_data, data in training_data])
+        # training_data = self.normalize(training_data, max_time)
         return training_data
 
     def data_process(self, data):
@@ -105,3 +107,26 @@ class Preprocess:
             data['current_time'] /= 4096
             result_data.append(data.to_numpy().astype(np.float32))
         return result_data
+
+    def preprocess_midi(self, mid):
+        current_time = 0
+        note_dic = {}
+        current_midi = np.zeros((2, 256, 24))
+        for track in mid.tracks[1]:
+            if type(track) == Message:
+                if track.time + current_time > 15360:
+                    break
+                if track.type == 'note_on' and 54 >= track.note >= 31:
+                    if track.note not in note_dic:
+                        note_dic[track.note] = (current_time + track.time, track.velocity)
+                    else:
+                        start_index = int(note_dic[track.note][0] / 60)
+                        velocity = note_dic[track.note][1]
+                        end_index = int((current_time + track.time) / 60)
+                        current_midi[0, start_index:end_index + 1, track.note - 31] = 1
+                        current_midi[1, start_index:end_index + 1, track.note - 31] = velocity
+                        del note_dic[track.note]
+                current_time += track.time
+        current_midi[1] = (current_midi[1] - np.average(current_midi[1]))/np.std(current_midi[1])
+        current_midi = current_midi.astype(np.float32)
+        return current_midi
