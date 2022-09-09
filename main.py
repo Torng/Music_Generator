@@ -13,7 +13,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
 
 # preprocess.set_batch_size(32)
-num_epochs = 500
+num_epochs = 10000
 g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # Initialize BCELoss function
@@ -117,7 +117,7 @@ for epoch in range(num_epochs):
 
         iters += 1
 
-    if epoch % 10 == 0:
+    if epoch % 500 == 0:
         path = Path("model_set/")
         path.mkdir(exist_ok=True)
         output_path = path / ("model_" + str(epoch))
