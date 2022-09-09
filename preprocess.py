@@ -15,7 +15,7 @@ class Preprocess:
 
     def load_data(self):
         training_data = []
-        for file_path in self.folder_path.glob("2004/*.midi"):
+        for file_path in self.folder_path.glob("*/*.midi"):
             midi = MidiFile(file_path)
             midi_array = self.preprocess_midi(midi)
             training_data.append(midi_array)
