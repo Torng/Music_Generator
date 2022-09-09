@@ -102,7 +102,7 @@ for epoch in range(num_epochs):
         # Output training stats
         if i % 16 == 0:
             print('[%d/%d][%d/%d]\tLoss_D: %.4f\tLoss_G: %.4f\tD(x): %.4f\tD(G(z)): %.4f / %.4f'
-                  % (epoch, num_epochs, i, 16,
+                  % (epoch, num_epochs, i, len(dl),
                      errD.item(), errG.item(), D_x, D_G_z1, D_G_z2))
 
         # Save Losses for plotting later
