@@ -31,6 +31,6 @@ class Generator(nn.Module):
         x = self.b_n_4(x)
         x = self.conv_t_5(x)
         x = self.b_n_5(x)
-        x = F.sigmoid(x)
+        x = F.tanh(x)
         # x = x.view(-1, 4096, 9)
         return x
