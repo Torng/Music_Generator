@@ -14,7 +14,7 @@ class Generator(nn.Module):
         self.b_n_3 = nn.BatchNorm2d(128)
         self.conv_t_4 = nn.ConvTranspose2d(128, 64, kernel_size=4, stride=(4, 1), padding=(0, 2), bias=False)
         self.b_n_4 = nn.BatchNorm2d(64)
-        self.conv_t_5 = nn.ConvTranspose2d(64, 1, kernel_size=4, stride=(2, 1), padding=(1, 0), bias=False)
+        self.conv_t_5 = nn.ConvTranspose2d(64, 1, kernel_size=4, stride=(4, 1), padding=(0, 0), bias=False)
         self.b_n_5 = nn.BatchNorm2d(1)
 
     def forward(self, x):

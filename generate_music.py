@@ -5,14 +5,11 @@ from mido import MidiFile, MidiTrack, Message
 
 def denormalize(new_music):
     # control ,value,note,velocity,time,program_change,control_change,note_on,current_time
-    # new_music[1] *= 127
-    # new_music[1] = torch.where(new_music[1] <= 0, 0, torch.floor(new_music[1]))
-    # new_music[1] = torch.where(new_music[1] > 127, 127, torch.floor(new_music[1]))
     new_music[0] = torch.where(new_music[0] <= 0, 0, torch.round(new_music[0]))
     new_music[0] = torch.where(new_music[0] > 1, 1, torch.round(new_music[0]))
 
 
-def to_midi(new_music, is_drum: bool):
+def to_midi(new_music, is_drum: bool, per_beat=15):
     new_mid = MidiFile()
     track = MidiTrack()
     pre_time = 0
@@ -28,7 +25,7 @@ def to_midi(new_music, is_drum: bool):
         for not_note_idx in not_note:
             not_note_num = not_note_idx.item()
             if not_note_num in playing_notes:
-                current_time = current_beat * 60
+                current_time = current_beat * per_beat
                 ms = Message(type='note_on', channel=channel, note=not_note_num + 31, velocity=0,
                              time=current_time - pre_time)
                 track.append(ms)
@@ -39,10 +36,10 @@ def to_midi(new_music, is_drum: bool):
                 note_idx_num = note_idx.item()
                 # velocity = int(new_music[1, current_beat, note_idx].item())
                 ms = Message(type='note_on', channel=channel, note=note_idx_num + 31, velocity=100,
-                             time=current_beat * 60 - pre_time)
+                             time=current_beat * per_beat - pre_time)
                 track.append(ms)
                 playing_notes.append(note_idx_num)
-                pre_time = current_beat * 60
+                pre_time = current_beat * per_beat
     new_mid.tracks.append(track)
     new_mid.save("new_midi.mid")
 
