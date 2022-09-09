@@ -40,7 +40,7 @@ img_list = []
 G_losses = []
 D_losses = []
 iters = 0
-dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True, drop_last=True)
+dl = DataLoader(preprocess.whole_training_data, batch_size=64, shuffle=True, drop_last=True)
 print("Starting Training Loop...")
 # For each epoch
 save_name = 1
