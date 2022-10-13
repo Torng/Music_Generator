@@ -26,14 +26,11 @@ preprocess = Preprocess('funk_music')
 #  the progression of the generator
 fixed_noise = torch.randn(64, 128, 1, 1, device=device)
 
-# Establish convention for real and fake labels during training
-real_label = 1.
-fake_label = 0.
-lr = 0.0002
+lr = 0.00005
 beta1 = 0.5
 # Setup Adam optimizers for both G and D
-optimizerD = optim.Adam(d_net.parameters(), lr=lr, betas=(beta1, 0.999))
-optimizerG = optim.Adam(g_net.parameters(), lr=lr, betas=(beta1, 0.999))
+optimizerD = optim.RMSprop(d_net.parameters(), lr=lr)
+optimizerG = optim.RMSprop(g_net.parameters(), lr=lr)
 
 # Lists to keep track of progress
 img_list = []
