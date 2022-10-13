@@ -106,7 +106,7 @@ for epoch in range(num_epochs):
     optimizerG.step()
 
     if epoch % 2 == 0:
-        print("epoch:{0} ==> lossDr:{1}, lossDf:{2}, lossD:{3},lossG:{4}".format(epoch, lossr, lossf, -loss_D, loss_G))
+        print("epoch:{0} ==> lossDr:{1}, lossDf:{2}, lossD:{3},lossG:{4}".format(epoch, lossr, lossf, loss_D, -loss_G))
     if epoch % 10 == 0:
         path = Path("model_set/")
         path.mkdir(exist_ok=True)
