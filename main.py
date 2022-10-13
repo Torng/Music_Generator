@@ -78,7 +78,7 @@ for epoch in range(num_epochs):
     # For each batch in the dataloader
     for _ in range(5):  # train Dnet 5 times
         data = next(iterator)
-        real_cpu = data[0].to(device)
+        real_cpu = data.to(device)
         b_size = real_cpu.size(0)
         predr = d_net(real_cpu).view(-1)
         # maximize predr, therefore minus sign
