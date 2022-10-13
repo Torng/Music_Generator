@@ -40,7 +40,7 @@ img_list = []
 G_losses = []
 D_losses = []
 iters = 0
-dl = DataLoader(preprocess.whole_training_data, batch_size=64, shuffle=True, drop_last=True)
+dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True, drop_last=True)
 print("Starting Training Loop...")
 # For each epoch
 save_name = 1
@@ -79,7 +79,7 @@ for epoch in range(num_epochs):
             data = next(iterator)
         except StopIteration:
             iterator = iter(dl)
-        data = next(iterator)
+        # data = next(iterator)
         real_cpu = data.to(device)
         b_size = real_cpu.size(0)
         predr = d_net(real_cpu).view(-1)
