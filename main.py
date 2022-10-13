@@ -71,12 +71,14 @@ def gradient_penalty(critic, real_image, fake_image, device=None):
     return gradient_penalty
 
 
-
-
 iterator = iter(dl)
 for epoch in range(num_epochs):
     # For each batch in the dataloader
-    for _ in range(5):  # train Dnet 5 times
+    for _ in range(5):
+        try:
+            data = next(iterator)
+        except StopIteration:
+            iterator = iter(dl)
         data = next(iterator)
         real_cpu = data.to(device)
         b_size = real_cpu.size(0)
@@ -84,7 +86,7 @@ for epoch in range(num_epochs):
         # maximize predr, therefore minus sign
         lossr = predr.mean()
         z = torch.randn(b_size, 128, 1, 1, device=device)
-        xf = g_net(z) # gradient would be passed down
+        xf = g_net(z)  # gradient would be passed down
         predf = d_net(xf)
         # min predf
         lossf = predf.mean()
