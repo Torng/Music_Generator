@@ -18,8 +18,8 @@ g_net = Generator().to(device)
 d_net = Discriminator().to(device)
 # Initialize BCELoss function
 criterion = nn.BCELoss()
-# g_net(torch.randn(1, 128, 1, 1))
-# d_net(torch.randn(10, 1, 1024, 24))
+# g_net(torch.randn(1, 128, 1))
+# d_net(torch.randn(1, 5, 128))
 preprocess = Preprocess('funk_music')
 
 # Create batch of latent vectors that we will use to visualize
@@ -44,10 +44,10 @@ save_name = 1
 
 
 def gradient_penalty(critic, real_image, fake_image, device=None):
-    batch_size, channel, height, width = real_image.shape
+    batch_size, channel, width = real_image.shape
     fake_image = fake_image.to(device)
     # alpha is selected randomly between 0 and 1
-    alpha = torch.rand(batch_size, 1, 1, 1, device=device).repeat(1, channel, height, width)
+    alpha = torch.rand(batch_size, 1,  1, device=device).repeat(1, channel, width)
     # interpolated image=randomly weighted average between a real and fake image
     # interpolated image ← alpha *real image  + (1 − alpha) fake image
     interpolatted_image = (alpha * real_image) + (1 - alpha) * fake_image
@@ -82,7 +82,7 @@ for epoch in range(num_epochs):
         predr = d_net(real_cpu).view(-1)
         # maximize predr, therefore minus sign
         lossr = predr.mean()
-        z = torch.randn(b_size, 128, 1, 1, device=device)
+        z = torch.randn(b_size, 128, 1, device=device)
         xf = g_net(z)  # gradient would be passed down
         predf = d_net(xf)
         # min predf
@@ -93,7 +93,7 @@ for epoch in range(num_epochs):
         optimizerD.zero_grad()
         loss_D.backward()
         optimizerD.step()
-    z = torch.randn(b_size, 128, 1, 1, device=device)
+    z = torch.randn(b_size, 128, 1, device=device)
     xf = g_net(z)
     predf = d_net(xf)
     loss_G = -predf.mean()  # min
