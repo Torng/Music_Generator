@@ -21,7 +21,7 @@ if __name__ == "__main__":
     random.seed(0)
     tuner = Tuner()
     cpu_count = multiprocessing.cpu_count()
-    pool = Pool(cpu_count)
-    results = pool.starmap(tuner.tune, [(tuner.create_config()) for i in range(100)])
+    pool = Pool(1)
+    results = pool.map(tuner.tune, [(tuner.create_config()) for _ in range(2)])
     for result in results:
         print(result[''])

@@ -5,20 +5,11 @@ from Module.generator import Generator
 import torch
 from torch import nn
 import torch.optim as optim
-from ray import tune
 from torch.utils.data import DataLoader
 from pathlib import Path
 from midi_utils import denormalize, notes_to_midi
 
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-print("using {}".format(device))
-g_net = Generator().to(device)
-d_net = Discriminator().to(device)
 
-preprocess = Preprocess('maestro-v3.0.0/2011')
-
-dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True, drop_last=True)
-print("Starting Training Loop...")
 
 
 def gradient_penalty(critic, real_image, fake_image, device=None):
@@ -46,8 +37,16 @@ def gradient_penalty(critic, real_image, fake_image, device=None):
     return gradient_penalty
 
 
-@ray.remote(num_gpus=1)
 def train(config):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print("using {}".format(device))
+    g_net = Generator().to(device)
+    d_net = Discriminator().to(device)
+
+    preprocess = Preprocess('maestro-v3.0.0/2011')
+
+    dl = DataLoader(preprocess.whole_training_data, batch_size=32, shuffle=True, drop_last=True)
+    print("Starting Training Loop...")
     iterator = iter(dl)
     alpha = config['alpha'] if config else 10
     train_d_count = config['train_d'] if config else 5
