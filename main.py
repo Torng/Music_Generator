@@ -8,6 +8,7 @@ import torch.optim as optim
 import torchvision.utils as vutils
 from torch.utils.data import DataLoader
 from pathlib import Path
+from midi_utils import denormalize, notes_to_midi
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print("using {}".format(device))
@@ -113,4 +114,8 @@ for epoch in range(num_epochs):
         path = Path("output_music/")
         path.mkdir(exist_ok=True)
         output_path = path / ("music_" + str(epoch))
-        torch.save(g_net, output_path)
+        z = torch.randn(1, 128, 1, device=device)
+        xf = g_net(z)
+        music = denormalize(xf, preprocess.midi_std, preprocess.midi_mean)
+
+        notes_to_midi(music)

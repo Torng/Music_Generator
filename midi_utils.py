@@ -19,7 +19,7 @@ def notes_to_midi(notes: pd.DataFrame, out_file: str, instrument_name: str, velo
         start = float(prev_start + note['step'])
         end = float(start + note['duration'])
         note = pretty_midi.Note(
-            velocity=int(note.velocity),
+            velocity=int(note['velocity']),
             pitch=int(note['pitch']),
             start=start,
             end=end,
@@ -75,3 +75,14 @@ def plot_piano_roll(notes: pd.DataFrame, count: Optional[int] = None):
     plt.xlabel('Time [s]')
     plt.ylabel('Pitch')
     _ = plt.title(title)
+
+
+def denormalize(t, midi_std, midi_mean):
+    t = t.T
+    t[:, 0] = t[:, 0] * midi_std['pitch'] + midi_mean['pitch']
+    t[:, 1] = t[:, 1] * midi_std['velocity'] + midi_mean['velocity']
+    t[:, 2] = t[:, 2] * midi_std['start'] + midi_mean['start']
+    t[:, 3] = t[:, 3] * midi_std['end'] + midi_mean['end']
+    t[:, 4] = t[:, 4] * midi_std['step'] + midi_mean['step']
+    t[:, 5] = t[:, 5] * midi_std['duration'] + midi_mean['duration']
+    return pd.DataFrame(np.array(t.resize(128,6).detach()))
