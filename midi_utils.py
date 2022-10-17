@@ -5,6 +5,7 @@ import pandas as pd
 import pretty_midi
 from matplotlib import pyplot as plt
 import numpy as np
+import torch
 
 
 def notes_to_midi(notes: pd.DataFrame, out_file: str, instrument_name: str, velocity: int = 100,  # note loudness
@@ -85,4 +86,5 @@ def denormalize(t, midi_std, midi_mean):
     t[:, 3] = t[:, 3] * midi_std['end'] + midi_mean['end']
     t[:, 4] = t[:, 4] * midi_std['step'] + midi_mean['step']
     t[:, 5] = t[:, 5] * midi_std['duration'] + midi_mean['duration']
-    return pd.DataFrame(np.array(t.resize(128,6).detach()))
+    t = t.resize(128, 6).detach().to("cpu")
+    return pd.DataFrame(np.array(t), columns=['pitch', 'velocity', 'start', 'end', 'step', 'duration'])
