@@ -5,7 +5,7 @@ import torch.nn.functional as F
 class Discriminator(nn.Module):
     def __init__(self):
         super(Discriminator, self).__init__()
-        self.conv_t_1 = nn.Conv1d(5, 64, kernel_size=4, stride=(2))
+        self.conv_t_1 = nn.Conv1d(6, 64, kernel_size=4, stride=(2))
         self.conv_t_2 = nn.Conv1d(64, 128, kernel_size=4, stride=(2))
         self.conv_t_3 = nn.Conv1d(128, 256, kernel_size=4, stride=(2))
         self.conv_t_4 = nn.Conv1d(256, 1, kernel_size=4, stride=(2))
