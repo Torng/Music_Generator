@@ -10,8 +10,6 @@ from pathlib import Path
 from midi_utils import denormalize, notes_to_midi
 
 
-
-
 def gradient_penalty(critic, real_image, fake_image, device=None):
     batch_size, channel, width = real_image.shape
     fake_image = fake_image.to(device)
@@ -108,4 +106,5 @@ def train(config):
         #     xf = g_net(z)
         #     music = denormalize(xf, preprocess.midi_std, preprocess.midi_mean)
         #     notes_to_midi(music, str(output_path), preprocess.instrument_name)
-    return {'net': g_net, 'loss_d': loss_d_list[-1], 'loss_g': loss_g_list[-1]}
+        result = config.update({'net': g_net, 'loss_d': loss_d_list[-1], 'loss_g': loss_g_list[-1]})
+    return result
