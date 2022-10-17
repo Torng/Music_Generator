@@ -20,7 +20,7 @@ d_net = Discriminator().to(device)
 criterion = nn.BCELoss()
 # g_net(torch.randn(1, 128, 1))
 # d_net(torch.randn(1, 5, 128))
-preprocess = Preprocess('funk_music')
+preprocess = Preprocess('maestro-v3.0.0/2011')
 
 # Create batch of latent vectors that we will use to visualize
 #  the progression of the generator
@@ -47,7 +47,7 @@ def gradient_penalty(critic, real_image, fake_image, device=None):
     batch_size, channel, width = real_image.shape
     fake_image = fake_image.to(device)
     # alpha is selected randomly between 0 and 1
-    alpha = torch.rand(batch_size, 1,  1, device=device).repeat(1, channel, width)
+    alpha = torch.rand(batch_size, 1, 1, device=device).repeat(1, channel, width)
     # interpolated image=randomly weighted average between a real and fake image
     # interpolated image ← alpha *real image  + (1 − alpha) fake image
     interpolatted_image = (alpha * real_image) + (1 - alpha) * fake_image
@@ -108,4 +108,9 @@ for epoch in range(num_epochs):
         path = Path("model_set/")
         path.mkdir(exist_ok=True)
         output_path = path / ("model_" + str(epoch))
+        torch.save(g_net, output_path)
+    if epoch % 100 == 0:
+        path = Path("output_music/")
+        path.mkdir(exist_ok=True)
+        output_path = path / ("music_" + str(epoch))
         torch.save(g_net, output_path)

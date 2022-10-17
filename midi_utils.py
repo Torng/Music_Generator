@@ -8,18 +8,18 @@ import numpy as np
 
 
 def notes_to_midi(notes: pd.DataFrame, out_file: str, instrument_name: str, velocity: int = 100,  # note loudness
-                  ) -> pretty_midi.PrettyMIDI:
+                  is_drum=False) -> pretty_midi.PrettyMIDI:
     pm = pretty_midi.PrettyMIDI()
     instrument = pretty_midi.Instrument(
         program=pretty_midi.instrument_name_to_program(
-            instrument_name))
+            instrument_name), is_drum=is_drum)
 
     prev_start = 0
     for i, note in notes.iterrows():
         start = float(prev_start + note['step'])
         end = float(start + note['duration'])
         note = pretty_midi.Note(
-            velocity=velocity,
+            velocity=int(note.velocity),
             pitch=int(note['pitch']),
             start=start,
             end=end,
@@ -35,6 +35,11 @@ def notes_to_midi(notes: pd.DataFrame, out_file: str, instrument_name: str, velo
 def midi_to_notes(midi_file: str) -> pd.DataFrame:
     pm = pretty_midi.PrettyMIDI(midi_file)
     instrument = pm.instruments[0]
+    is_drum = False
+    if instrument.is_drum:
+        is_drum = True
+    instrument_name = pretty_midi.program_to_instrument_name(instrument.program)
+
     notes = defaultdict(list)
 
     # Sort the notes by start time
@@ -42,16 +47,18 @@ def midi_to_notes(midi_file: str) -> pd.DataFrame:
     prev_start = sorted_notes[0].start
 
     for note in sorted_notes:
-        start = note.start
-        end = note.end
-        notes['pitch'].append(note.pitch)
-        notes['start'].append(start)
-        notes['end'].append(end)
-        notes['step'].append(start - prev_start)
-        notes['duration'].append(end - start)
-        prev_start = start
+        if (note.pitch >= 28 and note.pitch <= 54) or not is_drum:
+            start = note.start
+            end = note.end
+            notes['pitch'].append(note.pitch)
+            notes['velocity'].append(note.velocity)
+            notes['start'].append(start)
+            notes['end'].append(end)
+            notes['step'].append(start - prev_start)
+            notes['duration'].append(end - start)
+            prev_start = start
 
-    return pd.DataFrame({name: np.array(value) for name, value in notes.items()})
+    return pd.DataFrame({name: np.array(value) for name, value in notes.items()}), instrument_name, is_drum
 
 
 def plot_piano_roll(notes: pd.DataFrame, count: Optional[int] = None):
